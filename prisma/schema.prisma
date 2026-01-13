@@ -1,0 +1,434 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client"
+    output   = "./generated"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+// ============================================
+// USER MANAGEMENT
+// ============================================
+
+enum UserRole {
+    ADMIN // Finance - view analytics & financials
+    PM // Project Manager - full access
+    TECH_LEAD // Tech Lead - view only
+}
+
+model User {
+    id       String   @id @default(uuid())
+    email    String   @unique
+    password String
+    name     String
+    role     UserRole @default(PM)
+    isActive Boolean  @default(true)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    activities ProjectActivity[]
+
+    @@map("users")
+}
+
+// ============================================
+// CLIENT MANAGEMENT
+// ============================================
+
+model Client {
+    id             String  @id @default(uuid())
+    fullName       String
+    email          String  @unique
+    countryCode    String  @default("+62")
+    phone          String
+    companyName    String?
+    companyWebsite String?
+
+    // Contact preferences
+    contactMethod  ContactMethod @default(EMAIL)
+    contactTime    ContactTime   @default(FLEXIBLE)
+    referralSource String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    projects Project[]
+
+    @@map("clients")
+}
+
+enum ContactMethod {
+    EMAIL
+    WHATSAPP
+    PHONE
+    VIDEO
+}
+
+enum ContactTime {
+    MORNING // 9AM-12PM
+    AFTERNOON // 12PM-3PM
+    EVENING // 3PM-6PM
+    FLEXIBLE
+}
+
+// ============================================
+// SERVICES & COMPLEXITY OPTIONS
+// ============================================
+
+enum ServiceCategory {
+    TECH
+    CREATIVE
+}
+
+model Service {
+    id          String          @id @default(uuid())
+    name        String          @unique // "Web Development"
+    slug        String          @unique // "web-dev"
+    description String?
+    category    ServiceCategory
+    icon        String? // Icon identifier
+    basePrice   Int             @default(0)
+    isActive    Boolean         @default(true)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    complexityOptions ComplexityOption[]
+    projectServices   ProjectService[]
+
+    @@map("services")
+}
+
+model ComplexityOption {
+    id          String  @id @default(uuid())
+    serviceId   String
+    name        String // "E-Commerce Platform"
+    slug        String // "ecommerce"
+    description String? // "15-20 pages with payment gateway"
+    minPrice    Int // 15000000
+    maxPrice    Int // 35000000
+    isActive    Boolean @default(true)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    service         Service          @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+    projectServices ProjectService[]
+
+    @@unique([serviceId, slug])
+    @@map("complexity_options")
+}
+
+// ============================================
+// ADDITIONAL SERVICES
+// ============================================
+
+model AdditionalService {
+    id          String  @id @default(uuid())
+    name        String  @unique // "SEO Optimization"
+    slug        String  @unique // "seo"
+    description String?
+    icon        String?
+    minPrice    Int
+    maxPrice    Int
+    isActive    Boolean @default(true)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    projectAdditionalServices ProjectAdditionalService[]
+
+    @@map("additional_services")
+}
+
+// ============================================
+// PROJECT MANAGEMENT
+// ============================================
+
+enum ProjectStatus {
+    PENDING_REVIEW // Submitted, waiting review
+    DEALING // Price negotiation
+    IN_PROGRESS // Work in progress
+    IN_REVISION // Client requested changes
+    COMPLETED // Project done
+    CANCELLED // Project cancelled
+}
+
+enum TimelineType {
+    RUSH // 1-2 weeks, +30%
+    STANDARD // 4-8 weeks, base price
+    FLEXIBLE // 8-12 weeks, -10%
+    NO_DEADLINE // Flexible, -15%
+}
+
+enum ProjectType {
+    NEW // New project from scratch
+    REDESIGN // Redesign/upgrade existing
+    INTEGRATION // Integration with existing
+    MAINTENANCE // Maintenance/support only
+}
+
+model Project {
+    id          String @id @default(uuid())
+    referenceId String @unique // "ILS-2026-1624"
+    clientId    String
+
+    // Project details
+    projectName String
+    description String        @db.Text
+    projectType ProjectType   @default(NEW)
+    status      ProjectStatus @default(PENDING_REVIEW)
+
+    // Timeline
+    timeline         TimelineType @default(STANDARD)
+    timelineModifier Decimal      @default(0) @db.Decimal(5, 2) // 0.30, 0, -0.10, -0.15
+
+    // Pricing
+    estimatedMin   Int // Estimated min price
+    estimatedMax   Int // Estimated max price
+    finalPrice     Int? // Negotiated price (set by PM)
+    bundleDiscount Int  @default(0)
+
+    // Budget range from client
+    budgetRangeMin Int
+    budgetRangeMax Int
+
+    // Dates
+    submittedAt         DateTime  @default(now())
+    reviewedAt          DateTime?
+    dealingStartAt      DateTime?
+    startDate           DateTime? // Set by PM
+    estimatedCompletion DateTime? // Set by PM
+    completedAt         DateTime?
+    cancelledAt         DateTime?
+
+    // Revisions
+    revisionCount Int @default(0)
+    maxRevisions  Int @default(3)
+
+    // Notes
+    additionalNotes String? @db.Text
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    client                    Client                     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+    projectServices           ProjectService[]
+    projectAdditionalServices ProjectAdditionalService[]
+    payments                  Payment[]
+    files                     ProjectFile[]
+    activities                ProjectActivity[]
+
+    @@index([referenceId])
+    @@index([clientId])
+    @@index([status])
+    @@map("projects")
+}
+
+// ============================================
+// PROJECT SERVICES (Junction Table)
+// ============================================
+
+model ProjectService {
+    id                 String @id @default(uuid())
+    projectId          String
+    serviceId          String
+    complexityOptionId String
+
+    // Pricing at time of selection
+    selectedMinPrice Int
+    selectedMaxPrice Int
+
+    createdAt DateTime @default(now())
+
+    // Relations
+    project          Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    service          Service          @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+    complexityOption ComplexityOption @relation(fields: [complexityOptionId], references: [id], onDelete: Cascade)
+
+    @@unique([projectId, serviceId, complexityOptionId])
+    @@map("project_services")
+}
+
+// ============================================
+// PROJECT ADDITIONAL SERVICES
+// ============================================
+
+model ProjectAdditionalService {
+    id                  String @id @default(uuid())
+    projectId           String
+    additionalServiceId String
+
+    // Pricing at time of selection
+    selectedMinPrice Int
+    selectedMaxPrice Int
+
+    createdAt DateTime @default(now())
+
+    // Relations
+    project           Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    additionalService AdditionalService @relation(fields: [additionalServiceId], references: [id], onDelete: Cascade)
+
+    @@unique([projectId, additionalServiceId])
+    @@map("project_additional_services")
+}
+
+// ============================================
+// PAYMENT MANAGEMENT
+// ============================================
+
+enum PaymentType {
+    DP // Deposit - 50%
+    MILESTONE // Milestone - 30%
+    FINAL // Final - 20%
+}
+
+enum PaymentStatus {
+    PENDING
+    PAID
+    FAILED
+    EXPIRED
+    CANCELLED
+}
+
+model Payment {
+    id        String @id @default(uuid())
+    projectId String
+
+    type   PaymentType
+    amount Int
+    status PaymentStatus @default(PENDING)
+
+    // Xendit integration
+    xenditInvoiceId  String? @unique
+    xenditInvoiceUrl String?
+
+    // Payment details
+    paidAt    DateTime?
+    expiredAt DateTime?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+    @@index([projectId])
+    @@index([xenditInvoiceId])
+    @@map("payments")
+}
+
+// ============================================
+// FILE MANAGEMENT
+// ============================================
+
+model ProjectFile {
+    id        String @id @default(uuid())
+    projectId String
+
+    fileName String
+    fileUrl  String // Supabase Storage URL
+    fileSize Int // in bytes
+    fileType String // MIME type
+
+    uploadedAt DateTime @default(now())
+
+    // Relations
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+    @@index([projectId])
+    @@map("project_files")
+}
+
+// ============================================
+// PROJECT ACTIVITY LOG
+// ============================================
+
+enum ActivityType {
+    PROJECT_SUBMITTED
+    PROJECT_REVIEWED
+    STATUS_CHANGED
+    PRICE_UPDATED
+    DATE_UPDATED
+    PAYMENT_RECEIVED
+    FILE_UPLOADED
+    REVISION_REQUESTED
+    NOTE_ADDED
+}
+
+model ProjectActivity {
+    id        String  @id @default(uuid())
+    projectId String
+    userId    String? // Nullable for system actions
+
+    type        ActivityType
+    action      String // "Status changed from pending_review to dealing"
+    description String?      @db.Text
+    metadata    Json? // Additional data (old value, new value, etc)
+
+    createdAt DateTime @default(now())
+
+    // Relations
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+    @@index([projectId])
+    @@index([createdAt])
+    @@map("project_activities")
+}
+
+// ============================================
+// NOTIFICATION SYSTEM
+// ============================================
+
+enum NotificationType {
+    EMAIL
+    WHATSAPP
+}
+
+enum NotificationStatus {
+    PENDING
+    SENT
+    FAILED
+}
+
+model Notification {
+    id String @id @default(uuid())
+
+    type           NotificationType @default(EMAIL)
+    recipientEmail String
+    recipientPhone String?
+
+    subject String
+    body    String             @db.Text
+    status  NotificationStatus @default(PENDING)
+
+    // Email specific
+    htmlBody String? @db.Text
+
+    // Metadata
+    projectId String?
+    metadata  Json?
+
+    sentAt       DateTime?
+    failedAt     DateTime?
+    errorMessage String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([status])
+    @@index([createdAt])
+    @@map("notifications")
+}
