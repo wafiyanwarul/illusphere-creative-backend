@@ -85,9 +85,11 @@ app.get('/', (req, res) => {
 
 // Import route modules
 import authRoutes from './modules/auth/auth.routes';
+import projectRoutes from './modules/projects/projects.routes';
 
 // Mount API v1 routes
 app.use(`/api/${env.API_VERSION}/auth`, authRoutes);
+app.use(`/api/${env.API_VERSION}/projects`, projectRoutes);
 
 // TODO: Mount other routes
 // import projectRoutes from './modules/projects/project.routes';

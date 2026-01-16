@@ -1,10 +1,17 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Create PostgreSQL connection pool
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) throw new Error('DATABASE_URL not set');
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'ada' : 'kosong');
+
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString,
 });
 
 // Create Prisma adapter with pg pool
