@@ -83,12 +83,14 @@ app.get('/', (req, res) => {
     });
 });
 
-// API v1 routes
-// TODO: Import and mount route modules here
-// Example:
-// import authRoutes from './modules/auth/auth.routes';
+// Import route modules
+import authRoutes from './modules/auth/auth.routes';
+
+// Mount API v1 routes
+app.use(`/api/${env.API_VERSION}/auth`, authRoutes);
+
+// TODO: Mount other routes
 // import projectRoutes from './modules/projects/project.routes';
-// app.use(`/api/${env.API_VERSION}/auth`, authRoutes);
 // app.use(`/api/${env.API_VERSION}/projects`, projectRoutes);
 
 // ============================================
