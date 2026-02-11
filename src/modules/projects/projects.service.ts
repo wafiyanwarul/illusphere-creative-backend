@@ -11,6 +11,7 @@ import {
   // ProjectService as PrismaProjectService,
   // ProjectAdditionalService,
 } from '@prisma/client';
+import { NotificationService } from '../notifications/notifications.service';
 
 interface ProjectSubmissionDto {
   clientName: string;
@@ -295,6 +296,22 @@ export class ProjectService {
         description: note || `Status updated to ${newStatus}`,
       },
     });
+
+    // Kirim notif ke client
+    const client = await prisma.client.findUnique({
+      where: { id: project.clientId },
+      select: { email: true },
+    });
+
+    if (client?.email) {
+      const notificationService = new NotificationService();
+      await notificationService.notifyStatusChange(
+        projectId,
+        newStatus,
+        client.email,
+        note
+      );
+    }
 
     return updatedProject;
   }
