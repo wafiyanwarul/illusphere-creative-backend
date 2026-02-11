@@ -1,12 +1,13 @@
 // src/modules/projects/projects.service.ts
 import { prisma } from '../../config/database';
-import { BadRequestError } from '../../shared/utils/errors'; // Path ini harus match struktur folder-mu
+import { BadRequestError, NotFoundError } from '../../shared/utils/errors'; // Path ini harus match struktur folder-mu
 import {
   Project,
   ContactMethod,
   ContactTime,
   ProjectType,
   TimelineType,
+  ProjectStatus,
   // ProjectService as PrismaProjectService,
   // ProjectAdditionalService,
 } from '@prisma/client';
@@ -39,21 +40,19 @@ export class ProjectService {
       where: { email: data.clientEmail },
     });
 
-    if (!client) {
-      client = await prisma.client.create({
-        data: {
-          fullName: data.clientName,
-          email: data.clientEmail,
-          phone: data.clientPhone,
-          countryCode: data.countryCode || '+62',
-          companyName: data.companyName,
-          companyWebsite: data.companyWebsite,
-          contactMethod: data.contactMethod || ContactMethod.EMAIL,
-          contactTime: data.contactTime || ContactTime.FLEXIBLE,
-          referralSource: data.referralSource,
-        },
-      });
-    }
+    client ??= await prisma.client.create({
+      data: {
+        fullName: data.clientName,
+        email: data.clientEmail,
+        phone: data.clientPhone,
+        countryCode: data.countryCode || '+62',
+        companyName: data.companyName,
+        companyWebsite: data.companyWebsite,
+        contactMethod: data.contactMethod || ContactMethod.EMAIL,
+        contactTime: data.contactTime || ContactTime.FLEXIBLE,
+        referralSource: data.referralSource,
+      },
+    });
 
     // 2. Generate reference ID unik (ILS-2026-XXXX)
     const year = new Date().getFullYear();
@@ -160,6 +159,103 @@ export class ProjectService {
     });
 
     return { project, referenceId };
+  }
+
+  // for client dashboard needs
+  async getProjectByReferenceId(referenceId: string) {
+    const project = await prisma.project.findUnique({
+      where: { referenceId },
+      include: {
+        client: {
+          select: {
+            fullName: true,
+            email: true,
+            phone: true,
+          },
+        },
+        projectServices: {
+          include: {
+            service: {
+              select: { name: true, slug: true, category: true },
+            },
+            complexityOption: {
+              select: { name: true, slug: true, minPrice: true, maxPrice: true },
+            },
+          },
+        },
+        projectAdditionalServices: {
+          include: {
+            additionalService: {
+              select: { name: true, slug: true, minPrice: true, maxPrice: true },
+            },
+          },
+        },
+        activities: {
+          orderBy: { createdAt: 'desc' },
+          take: 10, // Limit biar ga berat
+        },
+        payments: true, // Nanti kalau payment udah ada
+      },
+    });
+
+    if (!project) {
+      throw new NotFoundError(`Project dengan reference ${referenceId} tidak ditemukan`);
+    }
+
+    return project;
+  }
+
+  // for admin to manage users' projects (dashboard needs)
+  async getAllProjects(options: { status?: ProjectStatus; page?: number; limit?: number } = {}) {
+    const { status, page = 1, limit = 10 } = options;
+
+    const skip = (page - 1) * limit;
+
+    const whereClause: any = {};
+    if (status) {
+      whereClause.status = status;
+    }
+
+    const [projects, total] = await Promise.all([
+      prisma.project.findMany({
+        where: whereClause,
+        include: {
+          client: {
+            select: { fullName: true, email: true, phone: true },
+          },
+          projectServices: {
+            include: {
+              service: { select: { name: true, slug: true } },
+              complexityOption: { select: { name: true } },
+            },
+          },
+          projectAdditionalServices: {
+            include: {
+              additionalService: { select: { name: true } },
+            },
+          },
+          activities: {
+            orderBy: { createdAt: 'desc' },
+            take: 5, // Limit activities biar ga berat
+          },
+        },
+        orderBy: { submittedAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+
+      prisma.project.count({ where: whereClause }),
+    ]);
+
+    return {
+      projects,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   private getTimelineModifier(timeline: TimelineType): number {

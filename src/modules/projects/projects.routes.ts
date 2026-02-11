@@ -4,6 +4,7 @@ import * as projectController from './projects.controller';
 import { validate } from '../../shared/middlewares/validation';
 import { projectSubmissionLimiter } from '../../shared/middlewares/rateLimit';
 import { submitProjectValidation } from './projects.validation';
+import { authenticate, authorize } from '../../shared/middlewares/auth';
 
 const router = Router();
 
@@ -17,6 +18,28 @@ router.post(
     projectSubmissionLimiter,              // 3 submissions per hari per email (anti-spam)
     validate(submitProjectValidation),     // Validasi body pake express-validator
     projectController.submitProject        // Call controller untuk proses bisnis
+);
+
+/**
+ * @route   GET /api/v1/projects
+ * @desc    Get list of all projects with pagination & status filter (admin/PM only)
+ * @access  Protected
+ */
+router.get(
+    '/',
+    authenticate,                                   // Harus login JWT
+    authorize(['ADMIN', 'PM', 'TECH_LEAD']),        // Role check dari middleware auth-mu
+    projectController.getAllProjects
+);
+
+/**
+ * @route   GET /api/v1/projects/:referenceId
+ * @desc    Get project details by reference ID (untuk client pantau progress)
+ * @access  Public (client hanya butuh referenceId dari email/submit response)
+ */
+router.get(
+    '/:referenceId',
+    projectController.getProjectByReferenceId
 );
 
 // TODO: nanti tambah route lain kalau perlu, misal:
