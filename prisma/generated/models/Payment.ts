@@ -40,8 +40,8 @@ export type PaymentMinAggregateOutputType = {
   type: $Enums.PaymentType | null
   amount: number | null
   status: $Enums.PaymentStatus | null
-  xenditInvoiceId: string | null
-  xenditInvoiceUrl: string | null
+  tripayInvoiceId: string | null
+  tripayInvoiceUrl: string | null
   paidAt: Date | null
   expiredAt: Date | null
   createdAt: Date | null
@@ -54,8 +54,8 @@ export type PaymentMaxAggregateOutputType = {
   type: $Enums.PaymentType | null
   amount: number | null
   status: $Enums.PaymentStatus | null
-  xenditInvoiceId: string | null
-  xenditInvoiceUrl: string | null
+  tripayInvoiceId: string | null
+  tripayInvoiceUrl: string | null
   paidAt: Date | null
   expiredAt: Date | null
   createdAt: Date | null
@@ -68,8 +68,8 @@ export type PaymentCountAggregateOutputType = {
   type: number
   amount: number
   status: number
-  xenditInvoiceId: number
-  xenditInvoiceUrl: number
+  tripayInvoiceId: number
+  tripayInvoiceUrl: number
   paidAt: number
   expiredAt: number
   createdAt: number
@@ -92,8 +92,8 @@ export type PaymentMinAggregateInputType = {
   type?: true
   amount?: true
   status?: true
-  xenditInvoiceId?: true
-  xenditInvoiceUrl?: true
+  tripayInvoiceId?: true
+  tripayInvoiceUrl?: true
   paidAt?: true
   expiredAt?: true
   createdAt?: true
@@ -106,8 +106,8 @@ export type PaymentMaxAggregateInputType = {
   type?: true
   amount?: true
   status?: true
-  xenditInvoiceId?: true
-  xenditInvoiceUrl?: true
+  tripayInvoiceId?: true
+  tripayInvoiceUrl?: true
   paidAt?: true
   expiredAt?: true
   createdAt?: true
@@ -120,8 +120,8 @@ export type PaymentCountAggregateInputType = {
   type?: true
   amount?: true
   status?: true
-  xenditInvoiceId?: true
-  xenditInvoiceUrl?: true
+  tripayInvoiceId?: true
+  tripayInvoiceUrl?: true
   paidAt?: true
   expiredAt?: true
   createdAt?: true
@@ -221,8 +221,8 @@ export type PaymentGroupByOutputType = {
   type: $Enums.PaymentType
   amount: number
   status: $Enums.PaymentStatus
-  xenditInvoiceId: string | null
-  xenditInvoiceUrl: string | null
+  tripayInvoiceId: string | null
+  tripayInvoiceUrl: string | null
   paidAt: Date | null
   expiredAt: Date | null
   createdAt: Date
@@ -258,8 +258,8 @@ export type PaymentWhereInput = {
   type?: Prisma.EnumPaymentTypeFilter<"Payment"> | $Enums.PaymentType
   amount?: Prisma.IntFilter<"Payment"> | number
   status?: Prisma.EnumPaymentStatusFilter<"Payment"> | $Enums.PaymentStatus
-  xenditInvoiceId?: Prisma.StringNullableFilter<"Payment"> | string | null
-  xenditInvoiceUrl?: Prisma.StringNullableFilter<"Payment"> | string | null
+  tripayInvoiceId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  tripayInvoiceUrl?: Prisma.StringNullableFilter<"Payment"> | string | null
   paidAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   expiredAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
@@ -273,8 +273,8 @@ export type PaymentOrderByWithRelationInput = {
   type?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  xenditInvoiceId?: Prisma.SortOrderInput | Prisma.SortOrder
-  xenditInvoiceUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  tripayInvoiceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  tripayInvoiceUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   paidAt?: Prisma.SortOrderInput | Prisma.SortOrder
   expiredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -284,7 +284,7 @@ export type PaymentOrderByWithRelationInput = {
 
 export type PaymentWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  xenditInvoiceId?: string
+  tripayInvoiceId?: string
   AND?: Prisma.PaymentWhereInput | Prisma.PaymentWhereInput[]
   OR?: Prisma.PaymentWhereInput[]
   NOT?: Prisma.PaymentWhereInput | Prisma.PaymentWhereInput[]
@@ -292,13 +292,13 @@ export type PaymentWhereUniqueInput = Prisma.AtLeast<{
   type?: Prisma.EnumPaymentTypeFilter<"Payment"> | $Enums.PaymentType
   amount?: Prisma.IntFilter<"Payment"> | number
   status?: Prisma.EnumPaymentStatusFilter<"Payment"> | $Enums.PaymentStatus
-  xenditInvoiceUrl?: Prisma.StringNullableFilter<"Payment"> | string | null
+  tripayInvoiceUrl?: Prisma.StringNullableFilter<"Payment"> | string | null
   paidAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   expiredAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
-}, "id" | "xenditInvoiceId">
+}, "id" | "tripayInvoiceId">
 
 export type PaymentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -306,8 +306,8 @@ export type PaymentOrderByWithAggregationInput = {
   type?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  xenditInvoiceId?: Prisma.SortOrderInput | Prisma.SortOrder
-  xenditInvoiceUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  tripayInvoiceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  tripayInvoiceUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   paidAt?: Prisma.SortOrderInput | Prisma.SortOrder
   expiredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -328,8 +328,8 @@ export type PaymentScalarWhereWithAggregatesInput = {
   type?: Prisma.EnumPaymentTypeWithAggregatesFilter<"Payment"> | $Enums.PaymentType
   amount?: Prisma.IntWithAggregatesFilter<"Payment"> | number
   status?: Prisma.EnumPaymentStatusWithAggregatesFilter<"Payment"> | $Enums.PaymentStatus
-  xenditInvoiceId?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
-  xenditInvoiceUrl?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
+  tripayInvoiceId?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
+  tripayInvoiceUrl?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
   paidAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
   expiredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Payment"> | Date | string
@@ -341,8 +341,8 @@ export type PaymentCreateInput = {
   type: $Enums.PaymentType
   amount: number
   status?: $Enums.PaymentStatus
-  xenditInvoiceId?: string | null
-  xenditInvoiceUrl?: string | null
+  tripayInvoiceId?: string | null
+  tripayInvoiceUrl?: string | null
   paidAt?: Date | string | null
   expiredAt?: Date | string | null
   createdAt?: Date | string
@@ -356,8 +356,8 @@ export type PaymentUncheckedCreateInput = {
   type: $Enums.PaymentType
   amount: number
   status?: $Enums.PaymentStatus
-  xenditInvoiceId?: string | null
-  xenditInvoiceUrl?: string | null
+  tripayInvoiceId?: string | null
+  tripayInvoiceUrl?: string | null
   paidAt?: Date | string | null
   expiredAt?: Date | string | null
   createdAt?: Date | string
@@ -369,8 +369,8 @@ export type PaymentUpdateInput = {
   type?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
-  xenditInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  xenditInvoiceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripayInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripayInvoiceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -384,8 +384,8 @@ export type PaymentUncheckedUpdateInput = {
   type?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
-  xenditInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  xenditInvoiceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripayInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripayInvoiceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -398,8 +398,8 @@ export type PaymentCreateManyInput = {
   type: $Enums.PaymentType
   amount: number
   status?: $Enums.PaymentStatus
-  xenditInvoiceId?: string | null
-  xenditInvoiceUrl?: string | null
+  tripayInvoiceId?: string | null
+  tripayInvoiceUrl?: string | null
   paidAt?: Date | string | null
   expiredAt?: Date | string | null
   createdAt?: Date | string
@@ -411,8 +411,8 @@ export type PaymentUpdateManyMutationInput = {
   type?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
-  xenditInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  xenditInvoiceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripayInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripayInvoiceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -425,8 +425,8 @@ export type PaymentUncheckedUpdateManyInput = {
   type?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
-  xenditInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  xenditInvoiceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripayInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripayInvoiceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -449,8 +449,8 @@ export type PaymentCountOrderByAggregateInput = {
   type?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  xenditInvoiceId?: Prisma.SortOrder
-  xenditInvoiceUrl?: Prisma.SortOrder
+  tripayInvoiceId?: Prisma.SortOrder
+  tripayInvoiceUrl?: Prisma.SortOrder
   paidAt?: Prisma.SortOrder
   expiredAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -467,8 +467,8 @@ export type PaymentMaxOrderByAggregateInput = {
   type?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  xenditInvoiceId?: Prisma.SortOrder
-  xenditInvoiceUrl?: Prisma.SortOrder
+  tripayInvoiceId?: Prisma.SortOrder
+  tripayInvoiceUrl?: Prisma.SortOrder
   paidAt?: Prisma.SortOrder
   expiredAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -481,8 +481,8 @@ export type PaymentMinOrderByAggregateInput = {
   type?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  xenditInvoiceId?: Prisma.SortOrder
-  xenditInvoiceUrl?: Prisma.SortOrder
+  tripayInvoiceId?: Prisma.SortOrder
+  tripayInvoiceUrl?: Prisma.SortOrder
   paidAt?: Prisma.SortOrder
   expiredAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -548,8 +548,8 @@ export type PaymentCreateWithoutProjectInput = {
   type: $Enums.PaymentType
   amount: number
   status?: $Enums.PaymentStatus
-  xenditInvoiceId?: string | null
-  xenditInvoiceUrl?: string | null
+  tripayInvoiceId?: string | null
+  tripayInvoiceUrl?: string | null
   paidAt?: Date | string | null
   expiredAt?: Date | string | null
   createdAt?: Date | string
@@ -561,8 +561,8 @@ export type PaymentUncheckedCreateWithoutProjectInput = {
   type: $Enums.PaymentType
   amount: number
   status?: $Enums.PaymentStatus
-  xenditInvoiceId?: string | null
-  xenditInvoiceUrl?: string | null
+  tripayInvoiceId?: string | null
+  tripayInvoiceUrl?: string | null
   paidAt?: Date | string | null
   expiredAt?: Date | string | null
   createdAt?: Date | string
@@ -604,8 +604,8 @@ export type PaymentScalarWhereInput = {
   type?: Prisma.EnumPaymentTypeFilter<"Payment"> | $Enums.PaymentType
   amount?: Prisma.IntFilter<"Payment"> | number
   status?: Prisma.EnumPaymentStatusFilter<"Payment"> | $Enums.PaymentStatus
-  xenditInvoiceId?: Prisma.StringNullableFilter<"Payment"> | string | null
-  xenditInvoiceUrl?: Prisma.StringNullableFilter<"Payment"> | string | null
+  tripayInvoiceId?: Prisma.StringNullableFilter<"Payment"> | string | null
+  tripayInvoiceUrl?: Prisma.StringNullableFilter<"Payment"> | string | null
   paidAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   expiredAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
@@ -617,8 +617,8 @@ export type PaymentCreateManyProjectInput = {
   type: $Enums.PaymentType
   amount: number
   status?: $Enums.PaymentStatus
-  xenditInvoiceId?: string | null
-  xenditInvoiceUrl?: string | null
+  tripayInvoiceId?: string | null
+  tripayInvoiceUrl?: string | null
   paidAt?: Date | string | null
   expiredAt?: Date | string | null
   createdAt?: Date | string
@@ -630,8 +630,8 @@ export type PaymentUpdateWithoutProjectInput = {
   type?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
-  xenditInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  xenditInvoiceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripayInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripayInvoiceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -643,8 +643,8 @@ export type PaymentUncheckedUpdateWithoutProjectInput = {
   type?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
-  xenditInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  xenditInvoiceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripayInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripayInvoiceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -656,8 +656,8 @@ export type PaymentUncheckedUpdateManyWithoutProjectInput = {
   type?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
-  xenditInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  xenditInvoiceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripayInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripayInvoiceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -672,8 +672,8 @@ export type PaymentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   type?: boolean
   amount?: boolean
   status?: boolean
-  xenditInvoiceId?: boolean
-  xenditInvoiceUrl?: boolean
+  tripayInvoiceId?: boolean
+  tripayInvoiceUrl?: boolean
   paidAt?: boolean
   expiredAt?: boolean
   createdAt?: boolean
@@ -687,8 +687,8 @@ export type PaymentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   type?: boolean
   amount?: boolean
   status?: boolean
-  xenditInvoiceId?: boolean
-  xenditInvoiceUrl?: boolean
+  tripayInvoiceId?: boolean
+  tripayInvoiceUrl?: boolean
   paidAt?: boolean
   expiredAt?: boolean
   createdAt?: boolean
@@ -702,8 +702,8 @@ export type PaymentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   type?: boolean
   amount?: boolean
   status?: boolean
-  xenditInvoiceId?: boolean
-  xenditInvoiceUrl?: boolean
+  tripayInvoiceId?: boolean
+  tripayInvoiceUrl?: boolean
   paidAt?: boolean
   expiredAt?: boolean
   createdAt?: boolean
@@ -717,15 +717,15 @@ export type PaymentSelectScalar = {
   type?: boolean
   amount?: boolean
   status?: boolean
-  xenditInvoiceId?: boolean
-  xenditInvoiceUrl?: boolean
+  tripayInvoiceId?: boolean
+  tripayInvoiceUrl?: boolean
   paidAt?: boolean
   expiredAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "type" | "amount" | "status" | "xenditInvoiceId" | "xenditInvoiceUrl" | "paidAt" | "expiredAt" | "createdAt" | "updatedAt", ExtArgs["result"]["payment"]>
+export type PaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "type" | "amount" | "status" | "tripayInvoiceId" | "tripayInvoiceUrl" | "paidAt" | "expiredAt" | "createdAt" | "updatedAt", ExtArgs["result"]["payment"]>
 export type PaymentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }
@@ -747,8 +747,8 @@ export type $PaymentPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     type: $Enums.PaymentType
     amount: number
     status: $Enums.PaymentStatus
-    xenditInvoiceId: string | null
-    xenditInvoiceUrl: string | null
+    tripayInvoiceId: string | null
+    tripayInvoiceUrl: string | null
     paidAt: Date | null
     expiredAt: Date | null
     createdAt: Date
@@ -1182,8 +1182,8 @@ export interface PaymentFieldRefs {
   readonly type: Prisma.FieldRef<"Payment", 'PaymentType'>
   readonly amount: Prisma.FieldRef<"Payment", 'Int'>
   readonly status: Prisma.FieldRef<"Payment", 'PaymentStatus'>
-  readonly xenditInvoiceId: Prisma.FieldRef<"Payment", 'String'>
-  readonly xenditInvoiceUrl: Prisma.FieldRef<"Payment", 'String'>
+  readonly tripayInvoiceId: Prisma.FieldRef<"Payment", 'String'>
+  readonly tripayInvoiceUrl: Prisma.FieldRef<"Payment", 'String'>
   readonly paidAt: Prisma.FieldRef<"Payment", 'DateTime'>
   readonly expiredAt: Prisma.FieldRef<"Payment", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Payment", 'DateTime'>
