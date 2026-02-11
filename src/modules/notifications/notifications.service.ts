@@ -11,25 +11,44 @@ export class NotificationService {
         this.transporter = nodemailer.createTransport({
             host: env.SMTP_HOST || 'smtp.gmail.com',
             port: env.SMTP_PORT ? parseInt(env.SMTP_PORT) : 587,
-            secure: false, // true untuk 465, false untuk 587
+            secure: false,
             auth: {
                 user: env.SMTP_USER,
-                pass: env.SMTP_PASS, // app password kalau pake Gmail
+                pass: env.SMTP_PASS,
             },
         });
     }
 
-    async sendEmailNotification(recipientEmail: string, subject: string, body: string, projectId?: string) {
+    async sendEmailNotification(
+        recipientEmail: string,
+        recipientName: string,
+        subject: string,
+        body: string,
+        projectId?: string
+    ) {
         try {
             const info = await this.transporter.sendMail({
                 from: `"Illusphere Creative" <${env.SMTP_USER}>`,
                 to: recipientEmail,
                 subject,
                 text: body,
-                html: `<p>${body}</p><p>Project ID: ${projectId || 'N/A'}</p>`, // simple HTML
+                html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
+            <h2 style="color: #2c3e50;">Hello ${recipientName},</h2>
+            <p>${body}</p>
+            <p style="margin-top: 20px; font-size: 14px; color: #555;">
+              Terima kasih telah mempercayakan project Anda kepada kami.<br>
+              Kami siap membantu kapan saja jika ada pertanyaan!
+            </p>
+            <p style="font-size: 12px; color: #888; margin-top: 30px;">
+              Best regards,<br>
+              Tim Illusphere Creative<br>
+              <a href="https://illusphere-creative.vercel.app" style="color: #3498db;">illusphere-creative.vercel.app</a>
+            </p>
+          </div>
+        `,
             });
 
-            // Log ke DB
             await prisma.notification.create({
                 data: {
                     type: NotificationType.EMAIL,
@@ -42,12 +61,11 @@ export class NotificationService {
                 },
             });
 
-            console.log('Email sent:', info.messageId);
+            console.log('Email sent to', recipientEmail, 'ID:', info.messageId);
             return info;
         } catch (error) {
-            console.error('Email error:', error);
+            console.error('Email failed:', error);
 
-            // Log failed
             await prisma.notification.create({
                 data: {
                     type: NotificationType.EMAIL,
@@ -61,17 +79,25 @@ export class NotificationService {
                 },
             });
 
-            throw error; // lempar biar controller handle
+            throw error;
         }
     }
 
-    // Method khusus untuk status change (dipanggil dari update status)
-    async notifyStatusChange(projectId: string, newStatus: string, clientEmail: string, note?: string) {
-        const subject = `Update Status Project: ${newStatus}`;
-        let body = `Halo,\n\nStatus project Anda telah diupdate menjadi **${newStatus}**.\n`;
-        if (note) body += `Catatan dari tim: ${note}\n`;
-        body += `\nTerima kasih telah mempercayakan project ke Illusphere Creative!\n\nBest regards,\nTim Illusphere`;
+    async notifyStatusChange(projectId: string, newStatus: string, clientEmail: string, clientName: string, projectName: string, note?: string) {
+        const subject = `Update Status Project: ${projectName} → ${newStatus}`;
 
-        await this.sendEmailNotification(clientEmail, subject, body, projectId);
+        let body = `Kami harap email ini menemukan Anda dalam keadaan baik.<br><br>`;
+        body += `Project Anda <strong>${projectName}</strong> (Reference ID: <strong>${projectId}</strong>) telah diupdate statusnya menjadi <strong>${newStatus}</strong>.<br><br>`;
+
+        if (note) {
+            body += `<strong>Catatan dari tim:</strong><br>${note}<br><br>`;
+        }
+
+        body += `Anda bisa pantau progress project kapan saja melalui link ini:<br>`;
+        body += `<a href="https://illusphere-creative.vercel.app/track?ref=${projectId}" style="color: #3498db; text-decoration: none; font-weight: bold;">Lihat Detail Project</a><br><br>`;
+
+        body += `Terima kasih atas kepercayaannya, kami akan terus update perkembangan selanjutnya!`;
+
+        await this.sendEmailNotification(clientEmail, clientName, subject, body, projectId);
     }
 }

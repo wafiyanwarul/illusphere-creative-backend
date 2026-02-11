@@ -300,15 +300,22 @@ export class ProjectService {
     // Kirim notif ke client
     const client = await prisma.client.findUnique({
       where: { id: project.clientId },
-      select: { email: true },
+      select: { email: true, fullName: true },
     });
 
-    if (client?.email) {
+    const projectDetail = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { projectName: true },
+    });
+
+    if (client?.email && projectDetail?.projectName) {
       const notificationService = new NotificationService();
       await notificationService.notifyStatusChange(
         projectId,
         newStatus,
         client.email,
+        client.fullName,
+        projectDetail.projectName,
         note
       );
     }

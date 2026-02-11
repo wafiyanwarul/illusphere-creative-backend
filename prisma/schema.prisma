@@ -310,22 +310,19 @@ model Payment {
     amount Int
     status PaymentStatus @default(PENDING)
 
-    // Xendit integration
-    xenditInvoiceId  String? @unique
-    xenditInvoiceUrl String?
+    tripayInvoiceId  String? @unique
+    tripayInvoiceUrl String?
 
-    // Payment details
     paidAt    DateTime?
     expiredAt DateTime?
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    // Relations
     project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
     @@index([projectId])
-    @@index([xenditInvoiceId])
+    @@index([tripayInvoiceId])
     @@map("payments")
 }
 
