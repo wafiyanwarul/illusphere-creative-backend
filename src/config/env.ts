@@ -48,4 +48,10 @@ export const env = cleanEnv(process.env, {
     // Rate Limiting
     RATE_LIMIT_WINDOW_MS: num({ default: 900000 }), // 15 minutes
     RATE_LIMIT_MAX_REQUESTS: num({ default: 100 }),
+
+    // Email (SMTP)
+    SMTP_HOST: str(),
+    SMTP_PORT: str(),
+    SMTP_USER: str(),
+    SMTP_PASS: str(),
 });

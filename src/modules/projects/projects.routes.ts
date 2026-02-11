@@ -42,6 +42,18 @@ router.get(
     projectController.getProjectByReferenceId
 );
 
+/**
+ * @route   PATCH /api/v1/projects/:id/status
+ * @desc    Update project status (admin/PM only)
+ * @access  Protected
+ */
+router.patch(
+    '/:id/status',
+    authenticate,
+    authorize(['ADMIN', 'PM']), // TECH_LEAD view only restricted)
+    projectController.updateProjectStatus
+);
+
 // TODO: nanti tambah route lain kalau perlu, misal:
 // router.get('/my-projects', authenticate, projectController.getMyProjects);
 // router.get('/:referenceId', projectController.getProjectByRefId);

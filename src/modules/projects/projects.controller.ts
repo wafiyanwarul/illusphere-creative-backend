@@ -138,3 +138,47 @@ export const getAllProjects = async (
         next(error);
     }
 };
+
+/**
+ * Update project status (for PM/Admin)
+ * PATCH /api/v1/projects/:id/status
+ * @access Protected (ADMIN, PM)
+ */
+export const updateProjectStatus = async (
+    req: AuthenticatedRequest<{ id: string }, {}, { status?: string; note?: string }>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { id } = req.params;
+        const { status, note } = req.body; // status wajib, note optional
+
+        if (!id) {
+            throw new BadRequestError('Project ID wajib disertakan');
+        }
+
+        if (!status || !Object.values(ProjectStatus).includes(status as ProjectStatus)) {
+            throw new BadRequestError('Status tidak valid. Pilih dari: PENDING_REVIEW, DEALING, IN_PROGRESS, IN_REVISION, COMPLETED, CANCELLED');
+        }
+
+        if (note !== undefined && typeof note !== 'string') {
+            throw new BadRequestError('Note harus berupa string');
+        }
+
+        const updated = await projectService.updateProjectStatus(
+            id,
+            status as ProjectStatus,
+            req.user?.userId, // Dari JWT (siapa yang update)
+            note as string | undefined
+        );
+
+        return sendSuccess(res, `Status updated to ${status}`, {
+            projectId: updated.id,
+            newStatus: updated.status,
+            updatedAt: updated.updatedAt,
+            note: note || null,
+        });
+    } catch (error) {
+        next(error);
+    }
+};

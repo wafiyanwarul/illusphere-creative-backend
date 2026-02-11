@@ -258,6 +258,47 @@ export class ProjectService {
     };
   }
 
+  async updateProjectStatus(projectId: string, newStatus: ProjectStatus, userId?: string, note?: string) {
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      throw new NotFoundError(`Project dengan ID ${projectId} tidak ditemukan`);
+    }
+
+    if (project.status === newStatus) {
+      throw new BadRequestError(`Status sudah ${newStatus}, tidak perlu diupdate`);
+    }
+
+    // Optional: validasi transisi status (misal ga boleh langsung dari PENDING ke COMPLETED)
+    // Kalau mau strict, tambah logic ini nanti
+
+    const updatedProject = await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        status: newStatus,
+        // Update timestamp sesuai status kalau perlu
+        ...(newStatus === 'DEALING' && { reviewedAt: new Date() }),
+        ...(newStatus === 'IN_PROGRESS' && { startDate: new Date() }),
+        ...(newStatus === 'COMPLETED' && { completedAt: new Date() }),
+      },
+    });
+
+    // Log activity
+    await prisma.projectActivity.create({
+      data: {
+        projectId,
+        userId, // Siapa yang update (PM/Admin)
+        type: 'STATUS_CHANGED',
+        action: `Status changed from ${project.status} to ${newStatus}`,
+        description: note || `Status updated to ${newStatus}`,
+      },
+    });
+
+    return updatedProject;
+  }
+
   private getTimelineModifier(timeline: TimelineType): number {
     switch (timeline) {
       case TimelineType.RUSH:
