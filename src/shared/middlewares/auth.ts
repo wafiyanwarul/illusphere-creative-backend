@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { AuthenticatedRequest, JwtPayload } from '../types';
 import { UnauthorizedError, ForbiddenError } from '../utils/errors';
 import { env } from '../../config/env';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../../generated/prisma';
 
 /**
  * JWT authentication middleware

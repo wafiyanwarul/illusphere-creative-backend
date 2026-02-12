@@ -5,7 +5,7 @@ import { sendCreated, sendSuccess } from '../../shared/utils/response';
 import { ProjectSubmissionRequest, ProjectSubmissionResponse } from './projects.types';
 import { BadRequestError } from '../../shared/utils/errors';
 import { AuthenticatedRequest } from '../../shared/types';
-import { ProjectStatus } from '@prisma/client';
+import { ProjectStatus } from '../../../generated/prisma';
 
 const projectService = new ProjectService();
 
@@ -182,3 +182,4 @@ export const updateProjectStatus = async (
         next(error);
     }
 };
+

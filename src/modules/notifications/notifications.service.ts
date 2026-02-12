@@ -1,6 +1,6 @@
 // src/modules/notifications/notifications.service.ts
 import { prisma } from '../../config/database';
-import { NotificationType, NotificationStatus } from '@prisma/client';
+import { NotificationType, NotificationStatus } from '../../../generated/prisma';
 import nodemailer from 'nodemailer'; // install dulu: npm i nodemailer @types/nodemailer -D kalau belum
 import { env } from '../../config/env';
 
@@ -97,6 +97,26 @@ export class NotificationService {
         body += `<a href="https://illusphere-creative.vercel.app/track?ref=${projectId}" style="color: #3498db; text-decoration: none; font-weight: bold;">Lihat Detail Project</a><br><br>`;
 
         body += `Terima kasih atas kepercayaannya, kami akan terus update perkembangan selanjutnya!`;
+
+        await this.sendEmailNotification(clientEmail, clientName, subject, body, projectId);
+    }
+
+    async notifyPaymentReceived(
+        projectId: string,
+        paymentType: string,
+        amount: number,
+        clientEmail: string,
+        clientName: string,
+        projectName: string
+    ) {
+        const subject = `Pembayaran Diterima: ${paymentType} untuk Project ${projectName}`;
+
+        let body = `Hello ${clientName},<br><br>`;
+        body += `Terima kasih atas pembayaran Anda!<br><br>`;
+        body += `Kami telah menerima pembayaran <strong>${paymentType}</strong> sebesar <strong>Rp ${amount.toLocaleString('id-ID')}</strong> untuk project <strong>${projectName}</strong> (Reference ID: <strong>${projectId}</strong>).<br><br>`;
+        body += `Project Anda sekarang akan dilanjutkan ke tahap berikutnya. Anda bisa pantau progress melalui link ini:<br>`;
+        body += `<a href="https://illusphere-creative.vercel.app/track?ref=${projectId}" style="color: #3498db; text-decoration: none; font-weight: bold;">Lihat Detail Project</a><br><br>`;
+        body += `Kalau ada pertanyaan, langsung hubungi kami ya!`;
 
         await this.sendEmailNotification(clientEmail, clientName, subject, body, projectId);
     }

@@ -1,5 +1,5 @@
 // src/modules/projects/projects.types.ts
-import { ContactMethod, ContactTime, ProjectType, TimelineType } from '@prisma/client';
+import { ContactMethod, ContactTime, ProjectType, TimelineType } from '../../../generated/prisma';
 
 // Request DTO dari frontend form
 export interface ProjectSubmissionRequest {

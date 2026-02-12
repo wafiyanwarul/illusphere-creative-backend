@@ -86,10 +86,12 @@ app.get('/', (req, res) => {
 // Import route modules
 import authRoutes from './modules/auth/auth.routes';
 import projectRoutes from './modules/projects/projects.routes';
+import paymentRoutes from './modules/payments/payments.routes';
 
 // Mount API v1 routes
 app.use(`/api/${env.API_VERSION}/auth`, authRoutes);
 app.use(`/api/${env.API_VERSION}/projects`, projectRoutes);
+app.use(`/api/${env.API_VERSION}/payments`, paymentRoutes);
 
 // TODO: Mount other routes
 // import projectRoutes from './modules/projects/project.routes';

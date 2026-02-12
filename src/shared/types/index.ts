@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ParsedQs } from 'qs';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../../generated/prisma';
 
 // ============================================
 // API RESPONSE TYPES
@@ -109,3 +109,4 @@ export interface FileUploadResult {
     fileSize: number;
     fileType: string;
 }
+

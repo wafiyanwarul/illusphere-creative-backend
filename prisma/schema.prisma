@@ -2,8 +2,8 @@
 // Learn more: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client"
-    output   = "./generated"
+    provider = "prisma-client-js"
+    output   = "../generated/prisma"
 }
 
 datasource db {
@@ -429,3 +429,4 @@ model Notification {
     @@index([createdAt])
     @@map("notifications")
 }
+

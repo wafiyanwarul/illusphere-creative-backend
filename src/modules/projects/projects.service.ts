@@ -10,7 +10,7 @@ import {
   ProjectStatus,
   // ProjectService as PrismaProjectService,
   // ProjectAdditionalService,
-} from '@prisma/client';
+} from '../../../generated/prisma';
 import { NotificationService } from '../notifications/notifications.service';
 
 interface ProjectSubmissionDto {
