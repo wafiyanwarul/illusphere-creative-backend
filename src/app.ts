@@ -1,4 +1,4 @@
-import express, { Application } from 'express';
+import express, { Application, Request } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -10,6 +10,9 @@ import { logger } from './shared/utils/logger';
 
 // Create Express application
 const app: Application = express();
+
+// Trust proxy for correct client IP behind ngrok/reverse proxy
+app.set('trust proxy', 1);
 
 // ============================================
 // SECURITY MIDDLEWARE
@@ -25,8 +28,15 @@ app.use(cors(corsOptions));
 // BODY PARSING MIDDLEWARE
 // ============================================
 
-// Parse JSON bodies
-app.use(express.json({ limit: '10mb' }));
+// Parse JSON bodies and keep raw payload for webhook signature validation
+app.use(
+    express.json({
+        limit: '10mb',
+        verify: (req, _res, buf) => {
+            (req as Request & { rawBody?: string }).rawBody = buf.toString('utf8');
+        },
+    })
+);
 
 // Parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));

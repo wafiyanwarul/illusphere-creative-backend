@@ -45,6 +45,13 @@ export const env = cleanEnv(process.env, {
     SUPABASE_SERVICE_KEY: str(),
     SUPABASE_STORAGE_BUCKET: str({ default: 'project-references' }),
 
+    // Tripay Integration (sandbox/production)
+    TRIPAY_MERCHANT_CODE: str({ desc: 'Tripay Merchant Code' }),
+    TRIPAY_API_KEY: str({ desc: 'Tripay API Key' }),
+    TRIPAY_PRIVATE_KEY: str({ desc: 'Tripay Private Key' }),
+    TRIPAY_CALLBACK_URL: url({ desc: 'Callback URL untuk Tripay webhook' }),
+    TRIPAY_SANDBOX: str({ choices: ['true', 'false'], default: 'true', desc: 'Gunakan sandbox Tripay' }),
+
     // Rate Limiting
     RATE_LIMIT_WINDOW_MS: num({ default: 900000 }), // 15 minutes
     RATE_LIMIT_MAX_REQUESTS: num({ default: 100 }),

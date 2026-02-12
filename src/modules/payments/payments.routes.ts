@@ -18,4 +18,9 @@ router.patch(
     paymentController.mockPayInvoice
 );
 
+router.post(
+    '/callback',
+    paymentController.handleTripayCallback
+);
+
 export default router;
