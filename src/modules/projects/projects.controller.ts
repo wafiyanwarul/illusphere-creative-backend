@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ProjectService } from './projects.service';
 import { sendCreated, sendSuccess } from '../../shared/utils/response';
 import { ProjectSubmissionRequest, ProjectSubmissionResponse } from './projects.types';
-import { BadRequestError } from '../../shared/utils/errors';
+import { BadRequestError, UnauthorizedError } from '../../shared/utils/errors';
 import { AuthenticatedRequest } from '../../shared/types';
 import { ProjectStatus } from '../../../generated/prisma';
 
@@ -97,6 +97,31 @@ export const getProjectByReferenceId = async (
         };
 
         return sendSuccess(res, 'Project details retrieved', responseData);
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * Get list of projects owned by the authenticated client
+ * GET /api/v1/projects/my
+ * @access Protected (client token only)
+ */
+export const getMyProjects = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        if (!req.user || req.user.type !== 'client' || !req.user.clientId) {
+            throw new UnauthorizedError('Akses hanya untuk client yang terverifikasi');
+        }
+
+        const clientId = req.user.clientId;
+
+        const result = await projectService.getMyProjects(clientId);
+
+        return sendSuccess(res, 'My projects retrieved successfully', result);
     } catch (error) {
         next(error);
     }

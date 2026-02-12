@@ -54,3 +54,20 @@ export const refreshTokenValidation = [
         .isString()
         .withMessage('Refresh token must be a string'),
 ];
+
+/**
+ * Validation rules for client verify (email + reference ID)
+ */
+export const clientVerifyValidation = [
+    body('email')
+        .isEmail()
+        .normalizeEmail()
+        .withMessage('Email harus valid'),
+
+    body('referenceId')
+        .trim()
+        .notEmpty()
+        .withMessage('Reference ID wajib diisi')
+        .isString()
+        .withMessage('Reference ID harus string'),
+];

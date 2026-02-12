@@ -7,6 +7,7 @@ import {
     registerValidation,
     loginValidation,
     refreshTokenValidation,
+    clientVerifyValidation,
 } from './auth.validation';
 
 const router = Router();
@@ -65,6 +66,14 @@ router.post(
     '/logout',
     authenticate,
     authController.logout
+);
+
+// client needs
+
+router.post(
+    '/client-verify',
+    validate(clientVerifyValidation),  // <-- pake ini, bukan array langsung
+    authController.clientVerify
 );
 
 export default router;

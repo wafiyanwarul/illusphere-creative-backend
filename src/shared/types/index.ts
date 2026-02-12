@@ -36,6 +36,9 @@ export interface JwtPayload {
     role: UserRole;
     iat?: number;
     exp?: number;
+    // Client auth token fields (present when token is issued for clients)
+    clientId?: string;
+    type?: 'client';
 }
 
 export interface AuthTokens {

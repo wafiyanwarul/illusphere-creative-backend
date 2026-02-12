@@ -193,3 +193,43 @@ export class AuthService {
         };
     }
 }
+
+export class ClientAuthService {
+    async verifyClient(email: string, referenceId: string) {
+        const client = await prisma.client.findFirst({
+            where: {
+                email,
+            },
+            include: {
+                projects: {
+                    where: { referenceId },
+                    select: { id: true, projectName: true, status: true },
+                },
+            },
+        });
+
+        if (!client || client.projects.length === 0) {
+            throw new UnauthorizedError('Email atau Reference ID tidak valid');
+        }
+
+        // Generate short-lived token client (expiry 1 jam)
+        const token = jwt.sign(
+            {
+                clientId: client.id,
+                email: client.email,
+                type: 'client',
+            },
+            env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        return {
+            token,
+            client: {
+                fullName: client.fullName,
+                email: client.email,
+            },
+            projects: client.projects,
+        };
+    }
+}

@@ -206,6 +206,44 @@ export class ProjectService {
     return project;
   }
 
+  // for client dashboard needs (see the projects progress)
+  async getMyProjects(clientId: string) {
+    const projects = await prisma.project.findMany({
+      where: { clientId },
+      include: {
+        payments: {
+          select: {
+            id: true,
+            type: true,
+            amount: true,
+            status: true,
+            tripayInvoiceUrl: true,
+            paidAt: true,
+            expiredAt: true,
+          },
+          orderBy: { createdAt: 'asc' }, // DP dulu, lalu Milestone, Final
+        },
+        activities: {
+          select: {
+            type: true,
+            action: true,
+            description: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 10, // Recent 10 note/activities
+        },
+      },
+      orderBy: { submittedAt: 'desc' }, // Project terbaru dulu
+    });
+
+    if (projects.length === 0) {
+      return { projects: [], message: 'Belum ada project' };
+    }
+
+    return { projects };
+  }
+
   // for admin to manage users' projects (dashboard needs)
   async getAllProjects(options: { status?: ProjectStatus; page?: number; limit?: number } = {}) {
     const { status, page = 1, limit = 10 } = options;

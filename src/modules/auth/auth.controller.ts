@@ -1,10 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthService } from './auth.service';
+import { AuthService, ClientAuthService } from './auth.service';
 import { sendSuccess, sendCreated } from '../../shared/utils/response';
 import { RegisterRequest, LoginRequest, RefreshTokenRequest } from './auth.types';
 import { AuthenticatedRequest } from '../../shared/types';
+import { BadRequestError } from '../../shared/utils/errors';
 
 const authService = new AuthService();
+const clientAuthService = new ClientAuthService();
+
+// ADMIN AREA ONLY
 
 /**
  * Register new user
@@ -104,6 +108,33 @@ export const logout = async (
         // 3. Use short-lived tokens and rely on expiration
 
         return sendSuccess(res, 'Logout successful');
+    } catch (error) {
+        next(error);
+    }
+};
+
+// FOR CLIENT AREA
+
+/**
+ * Verify client dengan email + reference ID
+ * POST /api/v1/auth/client-verify
+ * @access Public
+ */
+export const clientVerify = async (
+    req: Request<{}, {}, { email: string; referenceId: string }>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { email, referenceId } = req.body;
+
+        if (!email || !referenceId) {
+            throw new BadRequestError('Email dan Reference ID wajib diisi');
+        }
+
+        const result = await clientAuthService.verifyClient(email, referenceId);
+
+        return sendSuccess(res, 'Client verified successfully', result);
     } catch (error) {
         next(error);
     }
