@@ -3,9 +3,10 @@ import { Request, Response, NextFunction } from 'express';
 import { ProjectService } from './projects.service';
 import { sendCreated, sendSuccess } from '../../shared/utils/response';
 import { ProjectSubmissionRequest, ProjectSubmissionResponse } from './projects.types';
-import { BadRequestError, UnauthorizedError } from '../../shared/utils/errors';
+import { BadRequestError, NotFoundError, UnauthorizedError } from '../../shared/utils/errors';
 import { AuthenticatedRequest } from '../../shared/types';
 import { ProjectStatus } from '../../../generated/prisma';
+import { prisma } from '../../config/database';
 
 const projectService = new ProjectService();
 
@@ -48,7 +49,7 @@ export const submitProject = async (
  * GET /api/v1/projects/:referenceId
  */
 export const getProjectByReferenceId = async (
-    req: Request<{ referenceId: string }>,
+    req: AuthenticatedRequest<{ referenceId: string }>,
     res: Response,
     next: NextFunction
 ) => {
@@ -59,9 +60,45 @@ export const getProjectByReferenceId = async (
             throw new BadRequestError('Reference ID wajib disertakan');
         }
 
-        const project = await projectService.getProjectByReferenceId(referenceId);
+        // Wajib punya token client
+        if (!req.user || req.user.type !== 'client' || !req.user.clientId) {
+            throw new UnauthorizedError('Login diperlukan untuk melihat detail project');
+        }
 
-        // Format response simpel dulu (bisa di-expand nanti)
+        // Verifikasi project milik client ini
+        const project = await prisma.project.findFirst({
+            where: {
+                referenceId,
+                clientId: req.user.clientId,
+            },
+            include: {
+                // include yang sama seperti sebelumnya
+                client: {
+                    select: { fullName: true, email: true },
+                },
+                projectServices: {
+                    include: {
+                        service: { select: { name: true, slug: true } },
+                        complexityOption: { select: { name: true } },
+                    },
+                },
+                projectAdditionalServices: {
+                    include: {
+                        additionalService: { select: { name: true } },
+                    },
+                },
+                activities: {
+                    orderBy: { createdAt: 'desc' },
+                    take: 10,
+                },
+            },
+        });
+
+        if (!project) {
+            throw new NotFoundError('Project tidak ditemukan atau bukan milik Anda');
+        }
+
+        // Format response seperti sebelumnya (full data karena udah verified)
         const responseData = {
             referenceId: project.referenceId,
             projectName: project.projectName,
@@ -70,12 +107,10 @@ export const getProjectByReferenceId = async (
             estimatedMax: project.estimatedMax,
             timeline: project.timeline,
             description: project.description,
-            client: project.client
-                ? {
-                    fullName: project.client.fullName,
-                    email: project.client.email,
-                }
-                : null,
+            client: {
+                fullName: project.client.fullName,
+                email: project.client.email,
+            },
             services: project.projectServices.map(ps => ({
                 serviceName: ps.service?.name,
                 complexityName: ps.complexityOption?.name,
@@ -93,7 +128,6 @@ export const getProjectByReferenceId = async (
                 description: act.description,
                 createdAt: act.createdAt,
             })),
-            // Tambah payments kalau udah ada module-nya nanti
         };
 
         return sendSuccess(res, 'Project details retrieved', responseData);
@@ -107,25 +141,25 @@ export const getProjectByReferenceId = async (
  * GET /api/v1/projects/my
  * @access Protected (client token only)
  */
-export const getMyProjects = async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
-        if (!req.user || req.user.type !== 'client' || !req.user.clientId) {
-            throw new UnauthorizedError('Akses hanya untuk client yang terverifikasi');
-        }
+// export const getMyProjects = async (
+//     req: AuthenticatedRequest,
+//     res: Response,
+//     next: NextFunction
+// ) => {
+//     try {
+//         if (!req.user || req.user.type !== 'client' || !req.user.clientId) {
+//             throw new UnauthorizedError('Akses hanya untuk client yang terverifikasi');
+//         }
 
-        const clientId = req.user.clientId;
+//         const clientId = req.user.clientId;
 
-        const result = await projectService.getMyProjects(clientId);
+//         const result = await projectService.getMyProjects(clientId);
 
-        return sendSuccess(res, 'My projects retrieved successfully', result);
-    } catch (error) {
-        next(error);
-    }
-};
+//         return sendSuccess(res, 'My projects retrieved successfully', result);
+//     } catch (error) {
+//         next(error);
+//     }
+// };
 
 /**
  * Get list of all projects (for admin/PM dashboard)

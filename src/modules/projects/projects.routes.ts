@@ -5,6 +5,7 @@ import { validate } from '../../shared/middlewares/validation';
 import { projectSubmissionLimiter } from '../../shared/middlewares/rateLimit';
 import { submitProjectValidation } from './projects.validation';
 import { authenticate, authorize } from '../../shared/middlewares/auth';
+import * as clientController from './projects.client.controller';
 
 const router = Router();
 
@@ -33,12 +34,24 @@ router.get(
 );
 
 /**
+ * @route   GET /api/v1/projects/my
+ * @desc    Get list of projects owned by authenticated client (dashboard)
+ * @access  Protected (client token only)
+ */
+router.get(
+    '/my',
+    authenticate,  // Wajib token, check type 'client' di controller
+    clientController.getMyProjects
+);
+
+/**
  * @route   GET /api/v1/projects/:referenceId
  * @desc    Get project details by reference ID (untuk client pantau progress)
- * @access  Public (client hanya butuh referenceId dari email/submit response)
+ * @access  Protected (client token dari /auth/client-verify)
  */
 router.get(
     '/:referenceId',
+    authenticate,
     projectController.getProjectByReferenceId
 );
 

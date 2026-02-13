@@ -210,19 +210,27 @@ export class ProjectService {
   async getMyProjects(clientId: string) {
     const projects = await prisma.project.findMany({
       where: { clientId },
-      include: {
+      select: {
+        id: true,
+        referenceId: true,
+        projectName: true,
+        status: true,
+        timeline: true,
+        estimatedMin: true,
+        estimatedMax: true,
+        finalPrice: true,
+        submittedAt: true,
+        // Summary payments
         payments: {
           select: {
-            id: true,
             type: true,
             amount: true,
             status: true,
             tripayInvoiceUrl: true,
-            paidAt: true,
-            expiredAt: true,
           },
-          orderBy: { createdAt: 'asc' }, // DP dulu, lalu Milestone, Final
+          orderBy: { type: 'asc' }, // DP → Milestone → Final
         },
+        // Recent activities (note dari admin)
         activities: {
           select: {
             type: true,
@@ -231,14 +239,14 @@ export class ProjectService {
             createdAt: true,
           },
           orderBy: { createdAt: 'desc' },
-          take: 10, // Recent 10 note/activities
+          take: 5, // Recent 5 aja biar ga berat
         },
       },
       orderBy: { submittedAt: 'desc' }, // Project terbaru dulu
     });
 
     if (projects.length === 0) {
-      return { projects: [], message: 'Belum ada project' };
+      return { projects: [], message: 'Belum ada project terdaftar' };
     }
 
     return { projects };

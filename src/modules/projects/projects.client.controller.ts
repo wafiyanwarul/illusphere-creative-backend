@@ -1,5 +1,5 @@
 // src/modules/projects/projects.client.controller.ts
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { prisma } from '../../config/database';
 import { sendSuccess } from '../../shared/utils/response';
 import { UnauthorizedError } from '../../shared/utils/errors';
@@ -11,7 +11,7 @@ export const getMyProjects = async (
     next: NextFunction
 ) => {
     try {
-        if (!req.user || req.user.type !== 'client') {
+        if (!req.user || req.user.type !== 'client' || !req.user.clientId) {
             throw new UnauthorizedError('Akses hanya untuk client');
         }
 
