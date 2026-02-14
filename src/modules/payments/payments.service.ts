@@ -4,7 +4,7 @@ import { PaymentType, PaymentStatus, ActivityType } from '../../../generated/pri
 import { BadRequestError, NotFoundError } from '../../shared/utils/errors';
 import { NotificationService } from '../notifications/notifications.service';
 import axios from 'axios';
-import { createHmac } from 'crypto';
+import { createHmac } from 'node:crypto';
 import { env } from '../../config/env';
 
 export class PaymentService {

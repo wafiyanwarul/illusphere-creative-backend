@@ -11,7 +11,7 @@ export const getMyProjects = async (
     next: NextFunction
 ) => {
     try {
-        if (!req.user || req.user.type !== 'client' || !req.user.clientId) {
+        if (!req.user?.type || req.user.type !== 'client' || !req.user?.clientId) {
             throw new UnauthorizedError('Akses hanya untuk client');
         }
 
@@ -73,6 +73,6 @@ export const getMyProjects = async (
 
         return sendSuccess(res, 'My projects retrieved', { projects: formatted });
     } catch (error) {
-        next(error);
+        return next(error);
     }
 };

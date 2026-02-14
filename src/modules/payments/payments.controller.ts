@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from 'crypto';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import { Request, Response, NextFunction } from 'express';
 import { PaymentService } from './payments.service';
 import { sendCreated, sendSuccess } from '../../shared/utils/response';
@@ -35,7 +35,7 @@ export const generateInvoices = async (req: Request<{ id: string }>, res: Respon
         const result = await paymentService.generateInvoices(id);
         return sendCreated(res, 'Invoices generated', result);
     } catch (error) {
-        next(error);
+        return next(error);
     }
 };
 
@@ -49,7 +49,7 @@ export const mockPayInvoice = async (req: Request<{ id: string }>, res: Response
         const updated = await paymentService.mockPayInvoice(id);
         return sendSuccess(res, 'Payment mocked as PAID', updated);
     } catch (error) {
-        next(error);
+        return next(error);
     }
 };
 
@@ -77,6 +77,6 @@ export const handleTripayCallback = async (req: Request, res: Response, next: Ne
 
         return sendSuccess(res, 'Callback received');
     } catch (error) {
-        next(error);
+        return next(error);
     }
 };

@@ -8,6 +8,7 @@ import {
   ProjectType,
   TimelineType,
   ProjectStatus,
+  ActivityType,
   // ProjectService as PrismaProjectService,
   // ProjectAdditionalService,
 } from '../../../generated/prisma';
@@ -367,6 +368,67 @@ export class ProjectService {
     }
 
     return updatedProject;
+  }
+
+  async updateFinalPrice(projectId: string, finalPrice: number, userId?: string, note?: string) {
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      throw new NotFoundError(`Project dengan ID ${projectId} tidak ditemukan`);
+    }
+
+    if (finalPrice <= 0) {
+      throw new BadRequestError('Final price harus lebih besar dari 0');
+    }
+
+    if (finalPrice < project.estimatedMin) {
+      throw new BadRequestError('Final price tidak boleh lebih kecil dari estimasi minimum');
+    }
+
+    const updated = await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        finalPrice,
+      },
+    });
+
+    // Log activity
+    const description = `Final price set to ${finalPrice}` + (note ? ` - Note: ${note}` : '');
+    await prisma.projectActivity.create({
+      data: {
+        projectId,
+        userId,
+        type: ActivityType.NOTE_ADDED,
+        action: 'Final price updated',
+        description,
+      },
+    });
+
+    return updated;
+  }
+
+  async addProjectNote(projectId: string, note: string, userId?: string) {
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) throw new NotFoundError('Project tidak ditemukan');
+
+    if (!note || note.trim() === '') throw new BadRequestError('Note wajib diisi');
+
+    await prisma.projectActivity.create({
+      data: {
+        projectId,
+        userId,
+        type: ActivityType.NOTE_ADDED,
+        action: 'Note added by admin/PM',
+        description: note.trim(),
+      },
+    });
+
+    return { message: 'Note added successfully' };
   }
 
   private getTimelineModifier(timeline: TimelineType): number {

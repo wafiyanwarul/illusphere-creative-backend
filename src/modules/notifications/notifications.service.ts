@@ -5,12 +5,12 @@ import nodemailer from 'nodemailer'; // install dulu: npm i nodemailer @types/no
 import { env } from '../../config/env';
 
 export class NotificationService {
-    private transporter: nodemailer.Transporter;
+    private readonly transporter: nodemailer.Transporter;
 
     constructor() {
         this.transporter = nodemailer.createTransport({
             host: env.SMTP_HOST || 'smtp.gmail.com',
-            port: env.SMTP_PORT ? parseInt(env.SMTP_PORT) : 587,
+            port: env.SMTP_PORT ? Number.parseInt(env.SMTP_PORT) : 587,
             secure: false,
             auth: {
                 user: env.SMTP_USER,

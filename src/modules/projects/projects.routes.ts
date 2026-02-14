@@ -1,11 +1,11 @@
 // src/modules/projects/projects.routes.ts
 import { Router } from 'express';
 import * as projectController from './projects.controller';
+import * as clientController from './projects.client.controller';
 import { validate } from '../../shared/middlewares/validation';
 import { projectSubmissionLimiter } from '../../shared/middlewares/rateLimit';
 import { submitProjectValidation } from './projects.validation';
 import { authenticate, authorize } from '../../shared/middlewares/auth';
-import * as clientController from './projects.client.controller';
 
 const router = Router();
 
@@ -67,8 +67,30 @@ router.patch(
     projectController.updateProjectStatus
 );
 
+/**
+ * @route   PATCH /api/v1/projects/:id/price
+ * @desc    Update final price project (admin/PM only)
+ * @access  Protected
+ */
+router.patch(
+    '/:id/price',
+    authenticate,
+    authorize(['ADMIN', 'PM']),
+    projectController.updateFinalPrice
+);
+
+/**
+ * @route   POST /api/v1/projects/:id/notes
+ * @desc    Tambah note/comment dari admin/PM ke project
+ * @access  Protected (ADMIN/PM only)
+ */
+router.post(
+    '/:id/notes',
+    authenticate,
+    authorize(['ADMIN', 'PM']),
+    projectController.addProjectNote
+);
+
 // TODO: nanti tambah route lain kalau perlu, misal:
-// router.get('/my-projects', authenticate, projectController.getMyProjects);
-// router.get('/:referenceId', projectController.getProjectByRefId);
 
 export default router;

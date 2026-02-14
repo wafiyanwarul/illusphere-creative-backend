@@ -40,7 +40,7 @@ export const submitProject = async (
 
         return sendCreated(res, 'Project submitted successfully', responseData);
     } catch (error) {
-        next(error); // Lempar ke errorHandler middleware
+        return next(error); // Lempar ke errorHandler middleware
     }
 };
 
@@ -61,7 +61,7 @@ export const getProjectByReferenceId = async (
         }
 
         // Wajib punya token client
-        if (!req.user || req.user.type !== 'client' || !req.user.clientId) {
+        if (!req.user?.clientId || req.user?.type !== 'client') {
             throw new UnauthorizedError('Login diperlukan untuk melihat detail project');
         }
 
@@ -132,34 +132,9 @@ export const getProjectByReferenceId = async (
 
         return sendSuccess(res, 'Project details retrieved', responseData);
     } catch (error) {
-        next(error);
+        return next(error);
     }
 };
-
-/**
- * Get list of projects owned by the authenticated client
- * GET /api/v1/projects/my
- * @access Protected (client token only)
- */
-// export const getMyProjects = async (
-//     req: AuthenticatedRequest,
-//     res: Response,
-//     next: NextFunction
-// ) => {
-//     try {
-//         if (!req.user || req.user.type !== 'client' || !req.user.clientId) {
-//             throw new UnauthorizedError('Akses hanya untuk client yang terverifikasi');
-//         }
-
-//         const clientId = req.user.clientId;
-
-//         const result = await projectService.getMyProjects(clientId);
-
-//         return sendSuccess(res, 'My projects retrieved successfully', result);
-//     } catch (error) {
-//         next(error);
-//     }
-// };
 
 /**
  * Get list of all projects (for admin/PM dashboard)
@@ -174,8 +149,8 @@ export const getAllProjects = async (
     try {
         const { status, page = '1', limit = '10' } = req.query;
 
-        const pageNum = parseInt(page as string, 10) || 1;
-        const limitNum = parseInt(limit as string, 10) || 10;
+        const pageNum = Number.parseInt(page as string, 10) || 1;
+        const limitNum = Number.parseInt(limit as string, 10) || 10;
 
         if (pageNum < 1 || limitNum < 1) {
             throw new BadRequestError('Page dan limit harus angka positif');
@@ -194,7 +169,7 @@ export const getAllProjects = async (
 
         return sendSuccess(res, 'Projects retrieved successfully', result);
     } catch (error) {
-        next(error);
+        return next(error);
     }
 };
 
@@ -228,7 +203,7 @@ export const updateProjectStatus = async (
             id,
             status as ProjectStatus,
             req.user?.userId, // Dari JWT (siapa yang update)
-            note as string | undefined
+            note
         );
 
         return sendSuccess(res, `Status updated to ${status}`, {
@@ -238,7 +213,74 @@ export const updateProjectStatus = async (
             note: note || null,
         });
     } catch (error) {
-        next(error);
+        return next(error);
     }
 };
 
+/**
+ * Update final price of a project (admin/PM only)
+ * PATCH /api/v1/projects/:id/price
+ */
+/**
+ * Update final price of a project (admin/PM only)
+ * PATCH /api/v1/projects/:id/price
+ */
+export const updateFinalPrice = async (
+    req: AuthenticatedRequest<{ id: string }>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { id } = req.params;
+        const { finalPrice, note } = req.body;
+
+        if (!id) throw new BadRequestError('Project ID wajib');
+        if (typeof finalPrice !== 'number' || finalPrice <= 0) throw new BadRequestError('Final price harus angka positif');
+
+        const updated = await projectService.updateFinalPrice(
+            id,
+            finalPrice,
+            req.user?.userId,
+            note
+        );
+
+        return sendSuccess(res, 'Final price updated', {
+            projectId: updated.id,
+            finalPrice: updated.finalPrice,
+            updatedAt: updated.updatedAt,
+            note: note || null,
+        });
+    } catch (error) {
+        return next(error);
+    }
+};
+
+/**
+ * Add note/comment to a project (admin/PM only)
+ * POST /api/v1/projects/:id/notes
+ */
+export const addProjectNote = async (
+    req: AuthenticatedRequest<{ id: string }>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { id } = req.params;
+        const { note } = req.body;
+
+        if (!id) throw new BadRequestError('Project ID wajib');
+        if (!note || typeof note !== 'string' || note.trim() === '') {
+            throw new BadRequestError('Note wajib diisi dan tidak boleh kosong');
+        }
+
+        await projectService.addProjectNote(
+            id,
+            note.trim(),
+            req.user?.userId
+        );
+
+        return sendSuccess(res, 'Note berhasil ditambahkan');
+    } catch (error) {
+        return next(error);
+    }
+};
